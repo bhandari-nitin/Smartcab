@@ -12082,7 +12082,7 @@ Run the agent.py file after setting the flags from projects/smartcab folder inst
 </ul>
 </li>
 </ul>
-<p><code>deadline</code> feature has not been included since it may cause the agent to take a decision that is not favourable and possibly not safe. Adding deadline feature would increase the complexity and the agent will take more time to learn. Deadline is important but we focus on route-learning as of now.</p>
+<p><code>deadline</code> feature has not been included since it may cause the agent to take a decision that is not favourable and possibly not safe. Adding deadline feature would increase the complexity and the agent will take more time to learn. Deadline is important but we focus on route-learning as of now. Also <code>Inputs(right)</code> can be ignored as according to the US traffic laws, right turn can be made when the signal is green instead of looking for the traffic and making a right turn on red. So, for simplicity, we assume that right turn can be made only when the signal is green.</p>
 
 </div>
 </div>
@@ -12118,10 +12118,9 @@ The states of the individual features we selecte are:</p>
 <li><code>waypoint</code> can have left, right i.e. 3</li>
 <li><code>Inputs-lights</code> can be either red or green i.e. 2</li>
 <li><code>Inputs-left</code> can be none, left, right or forward i.e. 4</li>
-<li><code>Inputs-right</code> can be none, left, right or forward i.e. 4</li>
 <li><code>Inputs-oncoming</code> can be none, right, left or forward i.e. 4</li>
 </ul>
-<p>So the combinations of the states is 2 x 4 x 4 x 4 x 4 which is 384. With 20 trials, the size of the state space appears to be consierablly large and the agent might not be learn a policy for every possible combination of states. Moreover, <code>Inputs-right</code> can be ignored as according to the US traffic laws, right turn can be made when the signal is green instead of looking for the traffic and making a right turn on red. So, for simplicity, we assume that right turn can be made only when the signal is green.</p>
+<p>So the combinations of the states is 3 x 2 x 4 x 4 x 4 which is 96. With 20 trials, the size of the state space (still) appears to be consierablly large and the agent might not be learn a policy for every possible combination of states.</p>
 
 </div>
 </div>
@@ -12391,7 +12390,7 @@ You may also use a decaying function for $\alpha$ (the learning rate) if you so 
 <p><strong>Answer:</strong></p>
 <ul>
 <li>According to US Traffic Laws, the following rules attempts to define an optimal policy for the agent in this environment:<ul>
-<li>If lights are red, the agent should do nothing(None).</li>
+<li>If lights are red, the agent should stop if waypoint is forward and turn right when there is no traffic from left going 'forward' in the case when waypoint is 'right.'</li>
 <li>If lights are green and waypoint is right, the agent should make a movement but keeping in mind other constraints:<ul>
 <li>If there is an oncoming traffic in the direction agent is supposed to go, it should avoid the accident.</li>
 <li>The agent should learn the left rule where it is not allowed to take a left turn when oncoming traffic is turning right/forward.</li>
@@ -12422,15 +12421,15 @@ Examples are:<br>
 <br>     </li>
 </ul>
 </li>
-<li>('forward', 'red', 'right', None)<ul>
-<li>forward : -0.24</li>
-<li>None : 0.03</li>
-<li>right : 0.25</li>
-<li>left : -1.02)
+<li>('right', 'green', 'right', 'right')<ul>
+<li>forward : 0.02</li>
+<li>None : -0.03</li>
+<li>right : 0.00</li>
+<li>left : -0.10)
 <br><br>
 In the first example the agent correctly learns the policy, the waypoint is right and right action has the highest value provided that the light is green.<br>
 In the second example also, the agent correctly learns the policy, the waypoint is left and the left action has the highest Q value.<br>
-In the third example the agent fails to learn the policy, the waypoint is froward, and it takes a right since it has the highest Q value. This could be the reason it achives an <code>A</code> instead of <code>A+</code> for reliability. This may be beacuse of the agent didn't learn the right rule very well as I skipped the Inputs(right) state. </li>
+In the third example the agent fails to learn the policy, the waypoint is right, and it goes forward since it has the highest Q value. This could be the reason it achives an <code>A</code> instead of <code>A+</code> for reliability. This may be beacuse of the agent didn't learn the right rule very well as I skipped the Inputs(right) state. </li>
 </ul>
 </li>
 </ul>
@@ -12464,7 +12463,7 @@ In the third example the agent fails to learn the policy, the waypoint is frowar
 <p><strong>Answer:</strong></p>
 <ul>
 <li><strong>Issue with the Smartcab:</strong>
-  The agent's starting location starts randomly at any place in the environment, so the smart cab has to learn a new policy to destination. Also, the smartcab makes decision based on waypoint. Though the waypoint leads to goal but if agent has more options to choose from, future rewards might be considered useful.</li>
+  The agent's starting location starts randomly at any place in the environment, so the smart cab has to learn a new policy to destination. Also, the smartcab makes decision based on waypoint. Though the waypoint leads to goal but if agent has more options to choose from, future rewards might be considered useful. Also, the smartcab has no knowledge of its location(or does not have the location concept at all) in the grid and has to make decisions only at the intersections. It can only reach it's destination by following the directions given by waypoint.</li>
 <li><strong>Issue with the environment:</strong>
   The destination changes with every trial. Therefore, the agent needs considerable amount of training which could negatively affect Q-values.</li>
 </ul>
